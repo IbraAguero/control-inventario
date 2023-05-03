@@ -141,7 +141,7 @@ const Computers = () => {
         />
       </Box>
       <ModalMui open={open} setOpen={setOpen} title={'Agregar Computadora'}>
-        <FormComputer />
+        <FormComputer setOpen={setOpen} />
       </ModalMui>
     </Box>
   );

@@ -9,7 +9,7 @@ import axios from 'axios';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const FormComputer = () => {
+const FormComputer = ({ setOpen }) => {
   const [values, setValues] = useState({
     lugar: '',
     cpucomputadora: '',
@@ -33,15 +33,15 @@ const FormComputer = () => {
   };
 
   return (
-    <Box
-      display="grid"
-      gap="30px"
-      gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-      sx={{
-        '& > div': { gridColumn: isNonMobile ? undefined : 'span 4' },
-      }}
-    >
-      <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit}>
+      <Box
+        display="grid"
+        gap="30px"
+        gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+        sx={{
+          '& > div': { gridColumn: isNonMobile ? undefined : 'span 4' },
+        }}
+      >
         <TextField
           autoFocus
           fullWidth
@@ -89,15 +89,22 @@ const FormComputer = () => {
           sx={{ gridColumn: 'span 2' }}
           onChange={(e) => setValues({ ...values, estado: e.target.value })}
         />
-        <DialogActions>
-          <Box display="flex" justifyContent="end" mt="20px" gap="10px">
-            <Button type="submit" color="secondary" variant="outlined">
-              Agregar
-            </Button>
-          </Box>
-        </DialogActions>
-      </form>
-    </Box>
+      </Box>
+      <DialogActions>
+        <Box display="flex" justifyContent="end" mt="20px" gap="10px">
+          <Button
+            onClick={() => setOpen(false)}
+            color="neutral"
+            variant="outlined"
+          >
+            Cancelar
+          </Button>
+          <Button type="submit" color="secondary" variant="outlined">
+            Agregar
+          </Button>
+        </Box>
+      </DialogActions>
+    </form>
   );
 };
 
