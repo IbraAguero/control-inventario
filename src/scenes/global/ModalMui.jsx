@@ -1,11 +1,4 @@
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-} from '@mui/material';
+import { Dialog, DialogContent, DialogTitle } from '@mui/material';
 
 const ModalMui = ({ open, setOpen, children, title }) => {
   return (
@@ -20,7 +13,7 @@ const ModalMui = ({ open, setOpen, children, title }) => {
         {title}
       </DialogTitle>
       <DialogContent>{children}</DialogContent>
-      <DialogActions>
+      {/* <DialogActions>
         <Box display="flex" justifyContent="end" mt="20px" gap="10px">
           <Button
             onClick={() => setOpen(false)}
@@ -33,7 +26,7 @@ const ModalMui = ({ open, setOpen, children, title }) => {
             Agregar
           </Button>
         </Box>
-      </DialogActions>
+      </DialogActions> */}
     </Dialog>
   );
 };

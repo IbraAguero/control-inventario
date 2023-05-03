@@ -140,7 +140,7 @@ const Computers = () => {
           checkboxSelection
         />
       </Box>
-      <ModalMui open={open} setOpen={setOpen} title={'Agregar Monitor'}>
+      <ModalMui open={open} setOpen={setOpen} title={'Agregar Computadora'}>
         <FormComputer />
       </ModalMui>
     </Box>
