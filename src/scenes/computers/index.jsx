@@ -1,9 +1,11 @@
-import { Box, Button, Typography, useTheme } from '@mui/material';
+import { Box, Button, IconButton, Typography, useTheme } from '@mui/material';
 import { tokens } from '../../theme';
 /* import { mockDataComputers } from '../../data/mockData'; */
 import DoneOutlinedIcon from '@mui/icons-material/DoneOutlined';
 import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
 import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
+import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import Header from '../../components/Header';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
@@ -27,12 +29,22 @@ const Computers = () => {
       .catch((err) => console.log(err));
   }, []);
 
+  const handleDelete = (id) => {
+    axios
+      .delete('http://localhost:8000/delete/' + id)
+      .then((res) => {
+        location.reload();
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
+  };
+
   const columns = [
     { field: 'id', headerName: 'ID' },
     {
       field: 'lugar',
       headerName: 'Lugar',
-      flex: 1,
+      flex: 2,
       cellClassName: 'lugar-column--cell',
     },
     {
@@ -40,7 +52,7 @@ const Computers = () => {
       headerName: 'CPU',
       headerAlign: 'left',
       align: 'left',
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'ram',
@@ -58,7 +70,7 @@ const Computers = () => {
       field: 'estado',
       headerAlign: 'center',
       headerName: 'Estado',
-      flex: 1,
+      flex: 2.5,
       renderCell: ({ row: { estado } }) => {
         return (
           <Box
@@ -78,6 +90,29 @@ const Computers = () => {
             <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
               {estado}
             </Typography>
+          </Box>
+        );
+      },
+    },
+    {
+      field: 'acciones',
+      headerName: 'Acciones',
+      headerAlign: 'center',
+      align: 'center',
+      flex: 1.2,
+      renderCell: ({ row: { id } }) => {
+        return (
+          <Box display="flex" gap="5px">
+            <IconButton color="neutral" variant="contained">
+              <BorderColorOutlinedIcon />
+            </IconButton>
+            <IconButton
+              color="secondary"
+              variant="contained"
+              onClick={() => handleDelete(id)}
+            >
+              <DeleteOutlineOutlinedIcon />
+            </IconButton>
           </Box>
         );
       },
