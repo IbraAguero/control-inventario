@@ -16,7 +16,9 @@ import FormComputer from './FormComputer';
 const Computers = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [open, setOpen] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
+  const [openEdit, setOpenEdit] = useState(false);
+  const [idEdit, setIdEdit] = useState(null);
 
   const [computers, setComputers] = useState([]);
 
@@ -103,7 +105,14 @@ const Computers = () => {
       renderCell: ({ row: { id } }) => {
         return (
           <Box display="flex" gap="5px">
-            <IconButton color="neutral" variant="contained">
+            <IconButton
+              color="neutral"
+              variant="contained"
+              onClick={() => {
+                setOpenEdit(true);
+                setIdEdit(id);
+              }}
+            >
               <BorderColorOutlinedIcon />
             </IconButton>
             <IconButton
@@ -127,12 +136,9 @@ const Computers = () => {
           <Button
             variant="contained"
             color="secondary"
-            onClick={() => setOpen(true)}
+            onClick={() => setOpenCreate(true)}
           >
             Agregar
-          </Button>
-          <Button variant="contained" color="neutral">
-            Editar
           </Button>
         </Box>
       </Box>
@@ -175,8 +181,19 @@ const Computers = () => {
           checkboxSelection
         />
       </Box>
-      <ModalMui open={open} setOpen={setOpen} title={'Agregar Computadora'}>
-        <FormComputer setOpen={setOpen} />
+      <ModalMui
+        open={openCreate}
+        setOpen={setOpenCreate}
+        title={'Agregar Computadora'}
+      >
+        <FormComputer setOpen={setOpenCreate} />
+      </ModalMui>
+      <ModalMui
+        open={openEdit}
+        setOpen={setOpenEdit}
+        title={'Editar Computadora'}
+      >
+        <FormComputer setOpen={setOpenEdit} id={idEdit} />
       </ModalMui>
     </Box>
   );

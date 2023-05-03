@@ -6,10 +6,9 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import axios from 'axios';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 
-const FormComputer = ({ setOpen }) => {
+const FormComputer = ({ setOpen, id }) => {
   const [values, setValues] = useState({
     lugar: '',
     cpucomputadora: '',
@@ -18,7 +17,24 @@ const FormComputer = ({ setOpen }) => {
     estado: '',
   });
   const isNonMobile = useMediaQuery('(min-width:600px)');
-  /* const navigate = useNavigate(); */
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:8000/read/' + id)
+      .then((res) => {
+        console.log(res);
+        const data = res.data[0];
+        setValues({
+          ...values,
+          lugar: data.lugar,
+          cpucomputadora: data.cpucomputadora,
+          ram: data.ram,
+          discohd: data.discohd,
+          estado: data.estado,
+        });
+      })
+      .catch((err) => console.log(err));
+  }, [id]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -26,14 +42,24 @@ const FormComputer = ({ setOpen }) => {
       .post('http://localhost:8000/computadoras', values)
       .then((res) => {
         console.log(res);
-        /* navigate('/computadoras'); */
+        window.location.reload(true);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  const handleUpdate = (e) => {
+    e.preventDefault();
+    axios
+      .put('http://localhost:8000/update/' + id, values)
+      .then((res) => {
+        console.log(res);
         window.location.reload(true);
       })
       .catch((err) => console.log(err));
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={id ? handleUpdate : handleSubmit}>
       <Box
         display="grid"
         gap="30px"
@@ -51,6 +77,7 @@ const FormComputer = ({ setOpen }) => {
           type="text"
           variant="standard"
           sx={{ gridColumn: 'span 2' }}
+          value={values.lugar}
           onChange={(e) => setValues({ ...values, lugar: e.target.value })}
         />
         <TextField
@@ -60,6 +87,7 @@ const FormComputer = ({ setOpen }) => {
           type="text"
           variant="standard"
           sx={{ gridColumn: 'span 2' }}
+          value={values.cpucomputadora}
           onChange={(e) =>
             setValues({ ...values, cpucomputadora: e.target.value })
           }
@@ -70,6 +98,7 @@ const FormComputer = ({ setOpen }) => {
           label="RAM"
           type="text"
           variant="standard"
+          value={values.ram}
           onChange={(e) => setValues({ ...values, ram: e.target.value })}
         />
         <TextField
@@ -78,6 +107,7 @@ const FormComputer = ({ setOpen }) => {
           label="Disco HD"
           type="text"
           variant="standard"
+          value={values.discohd}
           onChange={(e) => setValues({ ...values, discohd: e.target.value })}
         />
         <TextField
@@ -87,6 +117,7 @@ const FormComputer = ({ setOpen }) => {
           type="text"
           variant="standard"
           sx={{ gridColumn: 'span 2' }}
+          value={values.estado}
           onChange={(e) => setValues({ ...values, estado: e.target.value })}
         />
       </Box>
@@ -100,7 +131,7 @@ const FormComputer = ({ setOpen }) => {
             Cancelar
           </Button>
           <Button type="submit" color="secondary" variant="outlined">
-            Agregar
+            {id ? 'Editar' : 'Agregar'}
           </Button>
         </Box>
       </DialogActions>
