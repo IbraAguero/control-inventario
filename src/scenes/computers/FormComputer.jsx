@@ -42,7 +42,7 @@ const FormComputer = ({ setOpen, id }) => {
       .post('http://localhost:8000/computadoras', values)
       .then((res) => {
         console.log(res);
-        window.location.reload(true);
+        location.reload();
       })
       .catch((err) => console.log(err));
   };
@@ -53,7 +53,7 @@ const FormComputer = ({ setOpen, id }) => {
       .put('http://localhost:8000/update/' + id, values)
       .then((res) => {
         console.log(res);
-        window.location.reload(true);
+        location.reload();
       })
       .catch((err) => console.log(err));
   };
