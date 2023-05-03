@@ -1,15 +1,4 @@
-import {
-  Box,
-  Button,
-  Typography,
-  useTheme,
-  Dialog,
-  TextField,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  useMediaQuery,
-} from '@mui/material';
+import { Box, Button, Typography, useTheme } from '@mui/material';
 import { tokens } from '../../theme';
 /* import { mockDataComputers } from '../../data/mockData'; */
 import DoneOutlinedIcon from '@mui/icons-material/DoneOutlined';
@@ -19,12 +8,13 @@ import Header from '../../components/Header';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import ModalMui from '../global/ModalMui';
+import FormComputer from './FormComputer';
 
 const Computers = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [open, setOpen] = useState(false);
-  const isNonMobile = useMediaQuery('(min-width:600px)');
 
   const [computers, setComputers] = useState([]);
 
@@ -33,18 +23,9 @@ const Computers = () => {
       .get('http://localhost:8000/')
       .then((res) => {
         setComputers(res.data);
-        console.log(res.data);
       })
       .catch((err) => console.log(err));
   }, []);
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
 
   const columns = [
     { field: 'id', headerName: 'ID' },
@@ -111,7 +92,7 @@ const Computers = () => {
           <Button
             variant="contained"
             color="secondary"
-            onClick={handleClickOpen}
+            onClick={() => setOpen(true)}
           >
             Agregar
           </Button>
@@ -159,83 +140,9 @@ const Computers = () => {
           checkboxSelection
         />
       </Box>
-      <Dialog open={open} onClose={handleClose} fullWidth>
-        <DialogTitle
-          sx={{
-            background: colors.grey[600],
-            fontSize: '20px',
-            fontWeight: '600',
-          }}
-        >
-          Agregar Computadora
-        </DialogTitle>
-        <DialogContent>
-          <Box
-            display="grid"
-            gap="30px"
-            gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-            sx={{
-              '& > div': { gridColumn: isNonMobile ? undefined : 'span 4' },
-            }}
-          >
-            <TextField
-              autoFocus
-              fullWidth
-              margin="dense"
-              id="lugar"
-              label="Lugar"
-              type="text"
-              variant="standard"
-              sx={{ gridColumn: 'span 2' }}
-            />
-            <TextField
-              margin="dense"
-              id="cpu"
-              label="CPU"
-              type="text"
-              variant="standard"
-              sx={{ gridColumn: 'span 2' }}
-            />
-            <TextField
-              margin="dense"
-              id="ram"
-              label="RAM"
-              type="text"
-              variant="standard"
-            />
-            <TextField
-              margin="dense"
-              id="discohd"
-              label="Disco HD"
-              type="text"
-              variant="standard"
-            />
-            <TextField
-              margin="dense"
-              id="estado"
-              label="Estado"
-              type="text"
-              variant="standard"
-              sx={{ gridColumn: 'span 2' }}
-            />
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Box display="flex" justifyContent="end" mt="20px" gap="10px">
-            <Button onClick={handleClose} color="neutral" variant="outlined">
-              Cancelar
-            </Button>
-            <Button type="submit" color="secondary" variant="outlined">
-              Agregar
-            </Button>
-          </Box>
-        </DialogActions>
-      </Dialog>
-      {/* <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-      ></Box> */}
+      <ModalMui open={open} setOpen={setOpen} title={'Agregar Monitor'}>
+        <FormComputer />
+      </ModalMui>
     </Box>
   );
 };
