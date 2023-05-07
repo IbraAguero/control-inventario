@@ -1,24 +1,16 @@
-import { Box, Button, IconButton, Typography, useTheme } from '@mui/material';
-import { tokens } from '../../theme';
-/* import { mockDataComputers } from '../../data/mockData'; */
-import DoneOutlinedIcon from '@mui/icons-material/DoneOutlined';
-import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
-import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
-import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
-import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { Box, Button } from '@mui/material';
 import Header from '../../components/Header';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import ModalMui from '../global/ModalMui';
-import FormComputer from './FormComputer';
+import FormAddComputer from './FormAddComputer';
+import FormEditComputer from './FormEditComputer';
+import TableComputers from './TableComputers';
 
 const Computers = () => {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const [openCreate, setOpenCreate] = useState(false);
-  const [openEdit, setOpenEdit] = useState(false);
-  const [idEdit, setIdEdit] = useState(null);
+  const [idToEdit, setIdToEdit] = useState(null);
+  const [openAddForm, setOpenAddForm] = useState(false);
+  const [openEditForm, setOpenEditForm] = useState(false);
 
   const [computers, setComputers] = useState([]);
 
@@ -31,102 +23,40 @@ const Computers = () => {
       .catch((err) => console.log(err));
   }, []);
 
-  const handleDelete = (id) => {
+  const createData = (data) => {
+    axios
+      .post('http://localhost:8000/computadoras', data)
+      .then((res) => {
+        setComputers([...computers, { ...data, id: res.data.insertId }]);
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        setOpenAddForm(false);
+      });
+  };
+
+  const updateData = (data) => {
+    axios
+      .put('http://localhost:8000/update/' + idToEdit, data)
+      .then(() => {
+        let newData = computers.map((el) =>
+          el.id === idToEdit ? { ...data, id: idToEdit } : el
+        );
+        setComputers(newData);
+      })
+      .catch((err) => console.log(err))
+      .finally(() => setOpenEditForm(false));
+  };
+
+  const deleteData = (id) => {
     axios
       .delete('http://localhost:8000/delete/' + id)
-      .then((res) => {
-        location.reload();
-        console.log(res);
+      .then(() => {
+        let newData = computers.filter((el) => el.id !== id);
+        setComputers(newData);
       })
       .catch((err) => console.log(err));
   };
-
-  const columns = [
-    { field: 'id', headerName: 'ID' },
-    {
-      field: 'lugar',
-      headerName: 'Lugar',
-      flex: 2,
-      cellClassName: 'lugar-column--cell',
-    },
-    {
-      field: 'cpucomputadora',
-      headerName: 'CPU',
-      headerAlign: 'left',
-      align: 'left',
-      flex: 2,
-    },
-    {
-      field: 'ram',
-      headerName: 'Cantidad de RAM',
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'discohd',
-      headerName: 'Disco HD',
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'estado',
-      headerAlign: 'center',
-      headerName: 'Estado',
-      flex: 2.5,
-      renderCell: ({ row: { estado } }) => {
-        return (
-          <Box
-            width="50%"
-            m="0 auto"
-            p="5px"
-            display="flex"
-            justifyContent="center"
-            backgroundColor={
-              estado == 'Activa' ? colors.greenAccent[600] : colors.grey[700]
-            }
-            borderRadius="5px"
-          >
-            {estado === 'Activa' && <DoneOutlinedIcon />}
-            {estado === 'Inactiva' && <BlockOutlinedIcon />}
-            {estado === 'Reparacion' && <BuildOutlinedIcon />}
-            <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
-              {estado}
-            </Typography>
-          </Box>
-        );
-      },
-    },
-    {
-      field: 'acciones',
-      headerName: 'Acciones',
-      headerAlign: 'center',
-      align: 'center',
-      flex: 1.2,
-      renderCell: ({ row: { id } }) => {
-        return (
-          <Box display="flex" gap="5px">
-            <IconButton
-              color="neutral"
-              variant="contained"
-              onClick={() => {
-                setOpenEdit(true);
-                setIdEdit(id);
-              }}
-            >
-              <BorderColorOutlinedIcon />
-            </IconButton>
-            <IconButton
-              color="secondary"
-              variant="contained"
-              onClick={() => handleDelete(id)}
-            >
-              <DeleteOutlineOutlinedIcon />
-            </IconButton>
-          </Box>
-        );
-      },
-    },
-  ];
 
   return (
     <Box m="20px">
@@ -136,64 +66,35 @@ const Computers = () => {
           <Button
             variant="contained"
             color="secondary"
-            onClick={() => setOpenCreate(true)}
+            onClick={() => setOpenAddForm(true)}
           >
             Agregar
           </Button>
         </Box>
       </Box>
-      <Box
-        m="20px 0 0 0"
-        height="75vh"
-        boxSizing="inherit"
-        sx={{
-          '& .MuiDataGrid-root': {
-            border: 'none',
-          },
-          '& .MuiDataGrid-cell': {
-            borderBottom: 'none',
-          },
-          '& .lugar-column--cell': {
-            color: colors.greenAccent[100],
-          },
-          '& .MuiDataGrid-columnHeaders': {
-            backgroundColor: colors.blueAccent[800],
-            borderBottom: 'none',
-          },
-          '& .MuiDataGrid-virtualScroller': {
-            backgroundColor: colors.primary[400],
-          },
-          '& .MuiDataGrid-footerContainer': {
-            borderTop: 'none',
-          },
-          '& .MuiCheckbox-root': {
-            color: `${colors.greenAccent[200]} !important`,
-          },
-          '& .MuiDataGrid-toolbarContainer .MuiButton-text': {
-            color: `${colors.grey[100]} !important`,
-          },
-        }}
-      >
-        <DataGrid
-          rows={computers}
-          columns={columns}
-          components={{ Toolbar: GridToolbar }}
-          checkboxSelection
-        />
-      </Box>
+      <TableComputers
+        computers={computers}
+        deleteData={deleteData}
+        setIdToEdit={setIdToEdit}
+        setOpenEditForm={setOpenEditForm}
+      />
       <ModalMui
-        open={openCreate}
-        setOpen={setOpenCreate}
+        open={openAddForm}
+        setOpen={setOpenAddForm}
         title={'Agregar Computadora'}
       >
-        <FormComputer setOpen={setOpenCreate} />
+        <FormAddComputer setOpen={setOpenAddForm} createData={createData} />
       </ModalMui>
       <ModalMui
-        open={openEdit}
-        setOpen={setOpenEdit}
+        open={openEditForm}
+        setOpen={setOpenEditForm}
         title={'Editar Computadora'}
       >
-        <FormComputer setOpen={setOpenEdit} id={idEdit} />
+        <FormEditComputer
+          idToEdit={idToEdit}
+          updateData={updateData}
+          setIdToEdit={setIdToEdit}
+        />
       </ModalMui>
     </Box>
   );

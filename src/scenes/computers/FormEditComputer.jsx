@@ -8,58 +8,51 @@ import {
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
-const FormComputer = ({ setOpen, id }) => {
-  const [values, setValues] = useState({
-    lugar: '',
-    cpucomputadora: '',
-    ram: '',
-    discohd: '',
-    estado: '',
-  });
+const initialValues = {
+  lugar: '',
+  cpucomputadora: '',
+  ram: '',
+  discohd: '',
+  estado: '',
+};
+
+const FormEditComputer = ({ setOpen, updateData, idToEdit, setIdToEdit }) => {
+  const [values, setValues] = useState(initialValues);
   const isNonMobile = useMediaQuery('(min-width:600px)');
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8000/read/' + id)
-      .then((res) => {
-        console.log(res);
-        const data = res.data[0];
-        setValues({
-          ...values,
-          lugar: data.lugar,
-          cpucomputadora: data.cpucomputadora,
-          ram: data.ram,
-          discohd: data.discohd,
-          estado: data.estado,
-        });
-      })
-      .catch((err) => console.log(err));
-  }, [id]);
+    if (idToEdit) {
+      axios
+        .get('http://localhost:8000/read/' + idToEdit)
+        .then((res) => {
+          const data = res.data[0];
+          setValues({
+            ...values,
+            lugar: data.lugar,
+            cpucomputadora: data.cpucomputadora,
+            ram: data.ram,
+            discohd: data.discohd,
+            estado: data.estado,
+          });
+        })
+        .catch((err) => console.log(err));
+    }
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios
-      .post('http://localhost:8000/computadoras', values)
-      .then((res) => {
-        console.log(res);
-        location.reload();
-      })
-      .catch((err) => console.log(err));
+    updateData(values);
+
+    handleReset();
   };
 
-  const handleUpdate = (e) => {
-    e.preventDefault();
-    axios
-      .put('http://localhost:8000/update/' + id, values)
-      .then((res) => {
-        console.log(res);
-        location.reload();
-      })
-      .catch((err) => console.log(err));
+  const handleReset = () => {
+    setValues(initialValues);
+    setIdToEdit(null);
   };
 
   return (
-    <form onSubmit={id ? handleUpdate : handleSubmit}>
+    <form onSubmit={handleSubmit}>
       <Box
         display="grid"
         gap="30px"
@@ -124,14 +117,17 @@ const FormComputer = ({ setOpen, id }) => {
       <DialogActions>
         <Box display="flex" justifyContent="end" mt="20px" gap="10px">
           <Button
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false);
+              handleReset();
+            }}
             color="neutral"
             variant="outlined"
           >
             Cancelar
           </Button>
           <Button type="submit" color="secondary" variant="outlined">
-            {id ? 'Editar' : 'Agregar'}
+            Editar
           </Button>
         </Box>
       </DialogActions>
@@ -139,4 +135,4 @@ const FormComputer = ({ setOpen, id }) => {
   );
 };
 
-export default FormComputer;
+export default FormEditComputer;
