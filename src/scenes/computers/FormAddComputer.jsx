@@ -19,25 +19,6 @@ const FormAddComputer = ({ setOpen, createData }) => {
   const [values, setValues] = useState(initialValues);
   const isNonMobile = useMediaQuery('(min-width:600px)');
 
-  /* useEffect(() => {
-    if (idToEdit) {
-      axios
-        .get('http://localhost:8000/read/' + idToEdit)
-        .then((res) => {
-          const data = res.data[0];
-          setValues({
-            ...values,
-            lugar: data.lugar,
-            cpucomputadora: data.cpucomputadora,
-            ram: data.ram,
-            discohd: data.discohd,
-            estado: data.estado,
-          });
-        })
-        .catch((err) => console.log(err));
-    }
-  }, []); */
-
   const handleSubmit = (e) => {
     e.preventDefault();
 

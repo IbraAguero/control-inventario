@@ -3,6 +3,7 @@ import Header from '../../components/Header';
 import ModalMui from '../global/ModalMui';
 import { useState } from 'react';
 import FormMonitor from './FormMonitor';
+
 const Monitors = () => {
   const [open, setOpen] = useState(false);
 

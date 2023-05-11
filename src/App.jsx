@@ -8,7 +8,6 @@ import Computer from './scenes/computers';
 import Monitors from './scenes/monitors';
 import Printers from './scenes/printers';
 import Peripherals from './scenes/peripherals';
-import Team from './scenes/monitors';
 import { useState } from 'react';
 
 function App() {

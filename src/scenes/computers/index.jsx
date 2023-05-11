@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material';
+import { Alert, Box, Button } from '@mui/material';
 import Header from '../../components/Header';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -6,11 +6,14 @@ import ModalMui from '../global/ModalMui';
 import FormAddComputer from './FormAddComputer';
 import FormEditComputer from './FormEditComputer';
 import TableComputers from './TableComputers';
+import ConfirmDialog from '../global/ConfirmDialog';
 
 const Computers = () => {
   const [idToEdit, setIdToEdit] = useState(null);
+  const [idToDelete, setIdToDelete] = useState(null);
   const [openAddForm, setOpenAddForm] = useState(false);
   const [openEditForm, setOpenEditForm] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const [computers, setComputers] = useState([]);
 
@@ -76,7 +79,9 @@ const Computers = () => {
         computers={computers}
         deleteData={deleteData}
         setIdToEdit={setIdToEdit}
+        setIdToDelete={setIdToDelete}
         setOpenEditForm={setOpenEditForm}
+        setConfirmDelete={setConfirmDelete}
       />
       <ModalMui
         open={openAddForm}
@@ -96,6 +101,14 @@ const Computers = () => {
           setIdToEdit={setIdToEdit}
         />
       </ModalMui>
+      <ConfirmDialog
+        open={confirmDelete}
+        setOpen={setConfirmDelete}
+        title={'Eliminar computadora'}
+        body={'Seguro desea eliminar la computadora'}
+        handleDelete={deleteData}
+        id={idToDelete}
+      />
     </Box>
   );
 };

@@ -12,6 +12,8 @@ const TableComputers = ({
   deleteData,
   setIdToEdit,
   setOpenEditForm,
+  setConfirmDelete,
+  setIdToDelete,
 }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -81,7 +83,6 @@ const TableComputers = ({
         return (
           <Box display="flex" gap="5px">
             <IconButton
-              color="neutral"
               variant="contained"
               onClick={() => {
                 setOpenEditForm(true);
@@ -91,9 +92,13 @@ const TableComputers = ({
               <BorderColorOutlinedIcon />
             </IconButton>
             <IconButton
-              color="secondary"
+              color="error"
               variant="contained"
-              onClick={() => deleteData(id)}
+              /* onClick={() => deleteData(id)} */
+              onClick={() => {
+                setConfirmDelete(true);
+                setIdToDelete(id);
+              }}
             >
               <DeleteOutlineOutlinedIcon />
             </IconButton>
@@ -141,7 +146,7 @@ const TableComputers = ({
         columns={columns}
         components={{ Toolbar: GridToolbar }}
         checkboxSelection
-        disableRowSelectionOnClick
+        disableSelectionOnClick={true}
       />
     </Box>
   );
