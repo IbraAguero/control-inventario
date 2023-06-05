@@ -1,4 +1,4 @@
-import { Alert, Box, Button } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Header from '../../components/Header';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -19,7 +19,7 @@ const Computers = () => {
 
   useEffect(() => {
     axios
-      .get('http://localhost:8000/')
+      .get('http://localhost:8000/computadoras')
       .then((res) => {
         setComputers(res.data);
       })

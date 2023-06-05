@@ -2,10 +2,15 @@ import {
   Box,
   Button,
   DialogActions,
+  FormControl,
+  InputLabel,
+  MenuItem,
+  Select,
   TextField,
   useMediaQuery,
 } from '@mui/material';
-import { useState } from 'react';
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 
 const initialValues = {
   lugar: '',
@@ -17,11 +22,38 @@ const initialValues = {
 
 const FormAddComputer = ({ setOpen, createData }) => {
   const [values, setValues] = useState(initialValues);
+  const [places, setPlaces] = useState([]);
+  const [states, setStates] = useState([]);
   const isNonMobile = useMediaQuery('(min-width:600px)');
+
+  /* useEffect(() => {
+    axios
+      .get('http://localhost:8000/lugares')
+      .then((res) => {
+        setPlaces(res.data);
+      })
+      .catch((err) => console.log(err));
+  }, []); */
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const responses = await axios.all([
+          axios.get('http://localhost:8000/lugares'),
+          axios.get('http://localhost:8000/estados'),
+        ]);
+        setPlaces(responses[0].data);
+        setStates(responses[1].data);
+      } catch (error) {
+        console.log('Error al hacer las peticiones:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
     createData(values);
 
     handleReset();
@@ -41,18 +73,48 @@ const FormAddComputer = ({ setOpen, createData }) => {
           '& > div': { gridColumn: isNonMobile ? undefined : 'span 4' },
         }}
       >
-        <TextField
-          autoFocus
+        <FormControl
+          variant="standard"
           fullWidth
           margin="dense"
-          id="lugar"
-          label="Lugar"
-          type="text"
+          sx={{ m: 1, minWidth: 120, gridColumn: 'span 2' }}
+        >
+          <InputLabel id="lugar">Lugar</InputLabel>
+          <Select
+            labelId="lugar"
+            id="lugar"
+            label="Lugar"
+            value={values.lugar}
+            onChange={(e) => setValues({ ...values, lugar: e.target.value })}
+          >
+            {places.map((el) => (
+              <MenuItem value={el.nombre} key={el.id}>
+                {el.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl
           variant="standard"
-          sx={{ gridColumn: 'span 2' }}
-          value={values.lugar}
-          onChange={(e) => setValues({ ...values, lugar: e.target.value })}
-        />
+          fullWidth
+          margin="dense"
+          sx={{ m: 1, minWidth: 120 }}
+        >
+          <InputLabel id="lugar">Estado</InputLabel>
+          <Select
+            labelId="estado"
+            id="estado"
+            label="Estado"
+            value={values.estado}
+            onChange={(e) => setValues({ ...values, estado: e.target.value })}
+          >
+            {states.map((el) => (
+              <MenuItem value={el.nombre} key={el.id}>
+                {el.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
         <TextField
           margin="dense"
           id="cpu"
@@ -83,7 +145,7 @@ const FormAddComputer = ({ setOpen, createData }) => {
           value={values.discohd}
           onChange={(e) => setValues({ ...values, discohd: e.target.value })}
         />
-        <TextField
+        {/* <TextField
           margin="dense"
           id="estado"
           label="Estado"
@@ -92,7 +154,7 @@ const FormAddComputer = ({ setOpen, createData }) => {
           sx={{ gridColumn: 'span 2' }}
           value={values.estado}
           onChange={(e) => setValues({ ...values, estado: e.target.value })}
-        />
+        /> */}
       </Box>
       <DialogActions>
         <Box display="flex" justifyContent="end" mt="20px" gap="10px">
