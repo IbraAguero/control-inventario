@@ -126,8 +126,6 @@ const FormMonitors = ({ setOpen, createData }) => {
       fechaagregacion: formattedDate,
     };
 
-    //console.log(valuesId);
-    //console.log(valuesName);
     createData(valuesId, valuesName);
   };
 

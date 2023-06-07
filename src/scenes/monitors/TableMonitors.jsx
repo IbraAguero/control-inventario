@@ -8,7 +8,7 @@ import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
-const TableMonitors = ({ monitors }) => {
+const TableMonitors = ({ monitors, setConfirmDelete, setIdToDelete }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -111,12 +111,10 @@ const TableMonitors = ({ monitors }) => {
             <IconButton
               color="error"
               variant="contained"
-              /* onClick={() => deleteData(id)} */
-              /* onClick={() => {
+              onClick={() => {
                 setConfirmDelete(true);
-                setIdToDelete(id);
-              }} */
-              onClick={() => console.log(nroinventario)}
+                setIdToDelete(nroinventario);
+              }}
             >
               <DeleteOutlineOutlinedIcon />
             </IconButton>

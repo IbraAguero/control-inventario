@@ -6,10 +6,13 @@ import axios from 'axios';
 
 import FormMonitor from './FormMonitor';
 import TableMonitors from './TableMonitors';
+import ConfirmDialog from '../global/ConfirmDialog';
 
 const Monitors = () => {
   const [openAddForm, setOpenAddForm] = useState(false);
   const [monitors, setMonitors] = useState([]);
+  const [idToDelete, setIdToDelete] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     axios
@@ -52,9 +55,9 @@ const Monitors = () => {
 
   const deleteData = (id) => {
     axios
-      .delete('http://localhost:8000/monitor/delete/' + id)
+      .delete('http://localhost:8000/monitores/delete/' + id)
       .then(() => {
-        let newData = monitors.filter((el) => el.id !== id);
+        let newData = monitors.filter((el) => el.nroinventario !== id);
         setMonitors(newData);
       })
       .catch((err) => console.log(err));
@@ -74,7 +77,11 @@ const Monitors = () => {
           </Button>
         </Box>
       </Box>
-      <TableMonitors monitors={monitors} />
+      <TableMonitors
+        monitors={monitors}
+        setConfirmDelete={setConfirmDelete}
+        setIdToDelete={setIdToDelete}
+      />
       <ModalMui
         open={openAddForm}
         setOpen={setOpenAddForm}
@@ -82,6 +89,14 @@ const Monitors = () => {
       >
         <FormMonitor setOpen={setOpenAddForm} createData={createData} />
       </ModalMui>
+      <ConfirmDialog
+        open={confirmDelete}
+        setOpen={setConfirmDelete}
+        title={'Eliminar monitor'}
+        body={'Seguro desea eliminar el monitor'}
+        handleDelete={deleteData}
+        id={idToDelete}
+      />
     </Box>
   );
 };
