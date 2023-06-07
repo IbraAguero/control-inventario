@@ -50,6 +50,16 @@ const Monitors = () => {
       });
   };
 
+  const deleteData = (id) => {
+    axios
+      .delete('http://localhost:8000/monitor/delete/' + id)
+      .then(() => {
+        let newData = monitors.filter((el) => el.id !== id);
+        setMonitors(newData);
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <Box m="20px">
       <Box display="flex" alignItems="center" gap="10px">
@@ -61,9 +71,6 @@ const Monitors = () => {
             onClick={() => setOpenAddForm(true)}
           >
             Agregar
-          </Button>
-          <Button variant="contained" color="neutral">
-            Editar
           </Button>
         </Box>
       </Box>

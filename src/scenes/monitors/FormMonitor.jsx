@@ -3,6 +3,7 @@ import {
   Button,
   DialogActions,
   FormControl,
+  FormHelperText,
   InputLabel,
   MenuItem,
   Select,
@@ -10,28 +11,55 @@ import {
   useMediaQuery,
 } from '@mui/material';
 import axios from 'axios';
+import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { useEffect, useState } from 'react';
+import * as Yup from 'yup';
 
-const initialValues = {
-  nroinventario: '',
-  nroserie: '',
-  lugar: '',
-  fabricante: '',
-  modelo: '',
-  tipo: '',
-  estado: '',
-  pulgadas: '',
-};
+const validationSchema = Yup.object().shape({
+  nroserie: Yup.string().required('Campo requerido'),
+  lugar: Yup.string().required('Campo requerido'),
+  estado: Yup.string().required('Campo requerido'),
+  tipo: Yup.string().required('Campo requerido'),
+  fabricante: Yup.string().required('Campo requerido'),
+  modelo: Yup.string().required('Campo requerido'),
+  pulgadas: Yup.string().required('Campo requerido'),
+  nroinventario: Yup.string()
+    .matches(/^[A-Z]{2}-\d{2,}$/, 'Formato invalido, Ej: MO-10')
+    .required('Campo requerido')
+    .test(
+      'validar-nroinventario',
+      'Ya está registrado',
+      async function (value) {
+        try {
+          const response = await axios.get(
+            `http://localhost:8000/monitores/validacion/${value}`
+          );
+          const { isRegistered } = response.data;
+          return !isRegistered;
+        } catch (error) {
+          console.error(
+            'Error al realizar la validación del nroinventario:',
+            error
+          );
+          return false;
+        }
+      }
+    ),
+});
 
 const FormMonitors = ({ setOpen, createData }) => {
-  const [values, setValues] = useState(initialValues);
-  const [places, setPlaces] = useState([]);
+  const [places, setPlaces] = useState([]); // *Factorizar para no usar tantos estados
   const [states, setStates] = useState([]);
   const [makers, setMakers] = useState([]);
   const [models, setModels] = useState([]);
   const [types, setTypes] = useState([]);
+  const [valueMaker, setValueMaker] = useState('');
 
   const isNonMobile = useMediaQuery('(min-width:600px)');
+
+  const findByName = (name, element) => {
+    return element.find((el) => el.nombre === name);
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,244 +83,310 @@ const FormMonitors = ({ setOpen, createData }) => {
   }, []);
 
   useEffect(() => {
-    if (values.fabricante) {
+    if (valueMaker) {
+      const { id } = findByName(valueMaker, makers);
       axios
-        .get(`http://localhost:8000/monitores/modelos/${values.fabricante.id}`)
+        .get(`http://localhost:8000/monitores/modelos/${id}`)
         .then((res) => {
           setModels(res.data);
         })
         .catch((err) => console.log(err));
     }
-  }, [values.fabricante]);
+  }, [valueMaker, makers]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
+  const handleSubmit = (values, place, type, state, maker, model) => {
+    //Para obtener la fecha
     const currentDate = new Date();
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const day = String(currentDate.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
 
+    const lugar = findByName(values.lugar, place);
+    const tipo = findByName(values.tipo, type);
+    const estado = findByName(values.estado, state);
+    const fabricante = findByName(values.fabricante, maker);
+    const modelo = findByName(values.modelo, model);
+
     const valuesId = {
       ...values,
-      fabricante: values.fabricante.id,
-      estado: values.estado.id,
-      lugar: values.lugar.id,
-      modelo: values.modelo.id,
-      tipo: values.tipo.id,
+      fabricante: lugar.id,
+      estado: estado.id,
+      lugar: lugar.id,
+      modelo: modelo.id,
+      tipo: tipo.id,
     };
     const valuesName = {
       ...values,
-      fabricante: values.fabricante.nombre,
-      estado: values.estado.nombre,
-      lugar: values.lugar.nombre,
-      modelo: values.modelo.nombre,
-      tipo: values.tipo.nombre,
+      fabricante: fabricante.nombre,
+      estado: estado.nombre,
+      lugar: lugar.nombre,
+      modelo: modelo.nombre,
+      tipo: tipo.nombre,
       fechaagregacion: formattedDate,
     };
 
+    //console.log(valuesId);
+    //console.log(valuesName);
     createData(valuesId, valuesName);
-    handleReset();
-  };
-
-  const handleReset = () => {
-    setValues(initialValues);
-    setModels([]);
-  };
-
-  const handleInputChange = (fieldName, stateName, e) => {
-    const selectedOption = stateName.find((el) => el.nombre === e.target.value);
-    setValues({
-      ...values,
-      [fieldName]: selectedOption ? selectedOption : null,
-    });
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Box
-        display="grid"
-        gap="30px"
-        gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-        sx={{
-          '& > div': { gridColumn: isNonMobile ? undefined : 'span 4' },
+    <>
+      <Formik
+        initialValues={{
+          nroinventario: '',
+          nroserie: '',
+          lugar: '',
+          fabricante: '',
+          modelo: '',
+          tipo: '',
+          pulgadas: '',
+          estado: '',
+        }}
+        validationSchema={validationSchema}
+        onSubmit={(valores, { resetForm }) => {
+          handleSubmit(valores, places, types, states, makers, models);
+          resetForm();
         }}
       >
-        <TextField
-          margin="dense"
-          id="nroinventario"
-          label="Nro Inventario"
-          type="text"
-          variant="standard"
-          sx={{ gridColumn: 'span 1' }}
-          value={values.nroinventario}
-          onChange={(e) =>
-            setValues({ ...values, nroinventario: e.target.value })
-          }
-        />
-        <TextField
-          margin="dense"
-          id="nroserie"
-          label="Nro Serie"
-          type="text"
-          variant="standard"
-          sx={{ gridColumn: 'span 2' }}
-          value={values.nroserie}
-          onChange={(e) => setValues({ ...values, nroserie: e.target.value })}
-        />
-        <FormControl
-          variant="standard"
-          fullWidth
-          margin="dense"
-          sx={{ m: 1, minWidth: 120, gridColumn: 'span 2' }}
-        >
-          <InputLabel id="lugar">Lugar</InputLabel>
-          <Select
-            labelId="lugar"
-            id="lugar"
-            label="Lugar"
-            value={values.lugar ? values.lugar.nombre : ''}
-            onChange={(e) => {
-              handleInputChange('lugar', places, e);
-            }}
-          >
-            {places.map((el) => (
-              <MenuItem value={el.nombre} key={el.id}>
-                {el.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl
-          variant="standard"
-          fullWidth
-          margin="dense"
-          sx={{ m: 1, minWidth: 120, gridColumn: 'span 2' }}
-        >
-          <InputLabel id="fabricante">Fabricante</InputLabel>
-          <Select
-            labelId="fabricante"
-            id="fabricante"
-            label="Fabricante"
-            value={values.fabricante ? values.fabricante.nombre : ''}
-            onChange={(e) => {
-              handleInputChange('fabricante', makers, e);
-            }}
-            /* onChange={(e) => {
-              const selectedFabricante = makers.find(
-                (el) => el.nombre === e.target.value
-              );
-              setValues({
-                ...values,
-                fabricante: selectedFabricante ? selectedFabricante : null,
-              });
-            }} */
-          >
-            {makers.map((el) => (
-              <MenuItem value={el.nombre} key={el.id}>
-                {el.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl
-          variant="standard"
-          fullWidth
-          margin="dense"
-          sx={{ m: 1, minWidth: 120, gridColumn: 'span 1' }}
-        >
-          <InputLabel id="modelo">Modelo</InputLabel>
-          <Select
-            labelId="modelo"
-            id="modelo"
-            label="Modelo"
-            value={values.modelo ? values.modelo.nombre : ''}
-            onChange={(e) => {
-              handleInputChange('modelo', models, e);
-            }}
-          >
-            {models.map((el) => (
-              <MenuItem value={el.nombre} key={el.id}>
-                {el.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl
-          variant="standard"
-          fullWidth
-          margin="dense"
-          sx={{ m: 1, minWidth: 120 }}
-        >
-          <InputLabel id="tipo">Tipo</InputLabel>
-          <Select
-            labelId="tipo"
-            id="tipo"
-            label="tipo"
-            value={values.tipo ? values.tipo.nombre : ''}
-            onChange={(e) => {
-              handleInputChange('tipo', types, e);
-            }}
-          >
-            {types.map((el) => (
-              <MenuItem value={el.nombre} key={el.id}>
-                {el.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <TextField
-          margin="dense"
-          id="pulgadas"
-          label="Pulgadas"
-          type="number"
-          variant="standard"
-          value={values.pulgadas}
-          onChange={(e) => setValues({ ...values, pulgadas: e.target.value })}
-        />
-        <FormControl
-          variant="standard"
-          fullWidth
-          margin="dense"
-          sx={{ m: 1, minWidth: 120, gridColumn: 'span 1' }}
-        >
-          <InputLabel id="estado">Estado</InputLabel>
-          <Select
-            labelId="estado"
-            id="estado"
-            label="estado"
-            value={values.estado ? values.estado.nombre : ''}
-            onChange={(e) => {
-              handleInputChange('estado', states, e);
-            }}
-          >
-            {states.map((el) => (
-              <MenuItem value={el.nombre} key={el.id}>
-                {el.nombre}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-      <DialogActions>
-        <Box display="flex" justifyContent="end" mt="20px" gap="10px">
-          <Button
-            onClick={() => {
-              setOpen(false);
-              handleReset();
-            }}
-            color="neutral"
-            variant="outlined"
-          >
-            Cancelar
-          </Button>
-          <Button type="submit" color="secondary" variant="outlined">
-            {'Agregar'}
-          </Button>
-        </Box>
-      </DialogActions>
-    </form>
+        {({ errors, touched, values, setFieldValue }) => (
+          <Form>
+            <Box
+              display="grid"
+              gap="30px"
+              gridTemplateColumns="repeat(4, minmax(0, 1fr))"
+              sx={{
+                '& > div': { gridColumn: isNonMobile ? undefined : 'span 4' },
+              }}
+            >
+              <FormControl error={errors.nroinventario ? true : false}>
+                <Field
+                  error={
+                    touched.nroinventario && errors.nroinventario ? true : false
+                  }
+                  as={TextField}
+                  name="nroinventario"
+                  id="nroinventario"
+                  margin="dense"
+                  label="Nro Inventario"
+                  type="text"
+                  variant="standard"
+                  autoComplete="off"
+                  sx={{ gridColumn: 'span 1' }}
+                />
+                <ErrorMessage
+                  name="nroinventario"
+                  component={() => (
+                    <FormHelperText>{errors.nroinventario}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+              <FormControl error={errors.nroserie ? true : false}>
+                <Field
+                  error={touched.nroserie && errors.nroserie ? true : false}
+                  as={TextField}
+                  id="nroserie"
+                  name="nroserie"
+                  margin="dense"
+                  label="Nro Serie"
+                  type="text"
+                  variant="standard"
+                  autoComplete="off"
+                  sx={{ gridColumn: 'span 2' }}
+                />
+                <ErrorMessage
+                  name="nroserie"
+                  component={() => (
+                    <FormHelperText>{errors.nroserie}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+              <FormControl
+                error={touched.lugar && errors.lugar ? true : false}
+                variant="standard"
+                fullWidth
+                margin="dense"
+                sx={{ m: 1, minWidth: 120, gridColumn: 'span 2' }}
+              >
+                <InputLabel id="lugar">Lugar</InputLabel>
+                <Field
+                  as={Select}
+                  name="lugar"
+                  id="lugar"
+                  labelId="lugar"
+                  label="Lugar"
+                >
+                  {places.map((el) => (
+                    <MenuItem value={el.nombre} key={el.id}>
+                      {el.nombre}
+                    </MenuItem>
+                  ))}
+                </Field>
+                <ErrorMessage
+                  name="lugar"
+                  component={() => (
+                    <FormHelperText>{errors.lugar}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+              <FormControl
+                error={touched.fabricante && errors.fabricante ? true : false}
+                variant="standard"
+                fullWidth
+                margin="dense"
+                sx={{ m: 1, minWidth: 120, gridColumn: 'span 2' }}
+              >
+                <InputLabel id="fabricante">Fabricante</InputLabel>
+                <Field
+                  as={Select}
+                  name="fabricante"
+                  labelId="fabricante"
+                  id="fabricante"
+                  label="Fabricante"
+                  value={values.fabricante}
+                  onChange={(e) => {
+                    setFieldValue('fabricante', e.target.value);
+                    setValueMaker(e.target.value);
+                  }}
+                >
+                  {makers.map((el) => (
+                    <MenuItem value={el.nombre} key={el.id}>
+                      {el.nombre}
+                    </MenuItem>
+                  ))}
+                </Field>
+                <ErrorMessage
+                  name="fabricante"
+                  component={() => (
+                    <FormHelperText>{errors.fabricante}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+              <FormControl
+                error={touched.modelo && errors.modelo ? true : false}
+                variant="standard"
+                fullWidth
+                margin="dense"
+                sx={{ m: 1, minWidth: 120, gridColumn: 'span 1' }}
+              >
+                <InputLabel id="modelo">Modelo</InputLabel>
+                <Field
+                  as={Select}
+                  name="modelo"
+                  id="modelo"
+                  labelId="modelo"
+                  label="Modelo"
+                >
+                  {models.map((el) => (
+                    <MenuItem value={el.nombre} key={el.id}>
+                      {el.nombre}
+                    </MenuItem>
+                  ))}
+                </Field>
+                <ErrorMessage
+                  name="modelo"
+                  component={() => (
+                    <FormHelperText>{errors.modelo}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+              <FormControl
+                error={touched.tipo && errors.tipo ? true : false}
+                variant="standard"
+                fullWidth
+                margin="dense"
+                sx={{ m: 1, minWidth: 120 }}
+              >
+                <InputLabel id="tipo">Tipo</InputLabel>
+                <Field
+                  as={Select}
+                  name="tipo"
+                  id="tipo"
+                  labelId="tipo"
+                  label="tipo"
+                >
+                  {types.map((el) => (
+                    <MenuItem value={el.nombre} key={el.id}>
+                      {el.nombre}
+                    </MenuItem>
+                  ))}
+                </Field>
+                <ErrorMessage
+                  name="tipo"
+                  component={() => (
+                    <FormHelperText>{errors.tipo}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+              <FormControl error={errors.pulgadas ? true : false}>
+                <Field
+                  error={touched.pulgadas && errors.pulgadas ? true : false}
+                  as={TextField}
+                  name="pulgadas"
+                  id="pulgadas"
+                  margin="dense"
+                  label="Pulgadas"
+                  type="number"
+                  variant="standard"
+                />
+                <ErrorMessage
+                  name="pulgadas"
+                  component={() => (
+                    <FormHelperText>{errors.pulgadas}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+              <FormControl
+                error={touched.estado && errors.estado ? true : false}
+                variant="standard"
+                fullWidth
+                margin="dense"
+                sx={{ m: 1, minWidth: 120, gridColumn: 'span 1' }}
+              >
+                <InputLabel id="estado">Estado</InputLabel>
+                <Field
+                  as={Select}
+                  name="estado"
+                  labelId="estado"
+                  id="estado"
+                  label="estado"
+                >
+                  {states.map((el) => (
+                    <MenuItem value={el.nombre} key={el.id}>
+                      {el.nombre}
+                    </MenuItem>
+                  ))}
+                </Field>
+                <ErrorMessage
+                  name="estado"
+                  component={() => (
+                    <FormHelperText>{errors.estado}</FormHelperText>
+                  )}
+                />
+              </FormControl>
+            </Box>
+            <DialogActions>
+              <Box display="flex" justifyContent="end" mt="20px" gap="10px">
+                <Button
+                  onClick={() => {
+                    setOpen(false);
+                    //handleReset();
+                  }}
+                  color="neutral"
+                  variant="outlined"
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" color="secondary" variant="outlined">
+                  {'Agregar'}
+                </Button>
+              </Box>
+            </DialogActions>
+          </Form>
+        )}
+      </Formik>
+    </>
   );
 };
 

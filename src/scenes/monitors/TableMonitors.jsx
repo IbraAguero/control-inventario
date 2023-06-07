@@ -1,7 +1,9 @@
 import { useTheme } from '@emotion/react';
 import { tokens } from '../../theme';
 import { Box, IconButton, Typography } from '@mui/material';
-
+import DoneOutlinedIcon from '@mui/icons-material/DoneOutlined';
+import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
+import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
@@ -66,19 +68,21 @@ const TableMonitors = ({ monitors }) => {
       renderCell: ({ row: { estado } }) => {
         return (
           <Box
-            width="50%"
+            width="65%"
             m="0 auto"
-            p="5px"
+            p="3px"
             display="flex"
             justifyContent="center"
             backgroundColor={
-              estado == 'Activa' ? colors.greenAccent[600] : colors.grey[700]
+              estado == 'En servicio'
+                ? colors.greenAccent[600]
+                : colors.grey[700]
             }
-            borderRadius="5px"
+            borderRadius="7px"
           >
-            {/* {estado === 'Activa' && <DoneOutlinedIcon />}
-            {estado === 'Inactiva' && <BlockOutlinedIcon />}
-            {estado === 'Reparacion' && <BuildOutlinedIcon />} */}
+            {estado === 'En servicio' && <DoneOutlinedIcon />}
+            {estado === 'De baja' && <BlockOutlinedIcon />}
+            {estado === 'Reparacion' && <BuildOutlinedIcon />}
             <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
               {estado}
             </Typography>
@@ -92,7 +96,7 @@ const TableMonitors = ({ monitors }) => {
       headerAlign: 'center',
       align: 'center',
       flex: 1.2,
-      renderCell: ({ row: { id } }) => {
+      renderCell: ({ row: { nroinventario } }) => {
         return (
           <Box display="flex" gap="5px">
             <IconButton
@@ -112,6 +116,7 @@ const TableMonitors = ({ monitors }) => {
                 setConfirmDelete(true);
                 setIdToDelete(id);
               }} */
+              onClick={() => console.log(nroinventario)}
             >
               <DeleteOutlineOutlinedIcon />
             </IconButton>
