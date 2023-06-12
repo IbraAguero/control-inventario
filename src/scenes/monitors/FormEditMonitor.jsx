@@ -26,33 +26,11 @@ const validationSchema = Yup.object().shape({
   fabricante: Yup.string().required('Campo requerido'),
   modelo: Yup.string().required('Campo requerido'),
   pulgadas: Yup.string().required('Campo requerido'),
-  nroinventario: Yup.string()
-    .matches(/^[A-Z]{2}-\d{2,}$/, 'Formato invalido, Ej: MO-10')
-    .required('Campo requerido')
-    .test(
-      'validar-nroinventario',
-      'Ya está registrado',
-      async function (value) {
-        try {
-          const response = await axios.get(
-            `http://localhost:8000/monitores/validacion/${value}`
-          );
-          const { isRegistered } = response.data;
-          return !isRegistered;
-        } catch (error) {
-          console.error(
-            'Error al realizar la validación del nroinventario:',
-            error
-          );
-          return false;
-        }
-      }
-    ),
 });
 
-const FormMonitors = ({
+const FormEditMonitor = ({
   title,
-  createData,
+  updateData,
   open,
   setOpen,
   initialValues,
@@ -140,6 +118,7 @@ const FormMonitors = ({
       lugar: lugar.id,
       modelo: modelo.id,
       tipo: tipo.id,
+      fechaUltModificacion: formattedDate,
     };
     const valuesName = {
       ...values,
@@ -148,10 +127,12 @@ const FormMonitors = ({
       lugar: lugar.nombre,
       modelo: modelo.nombre,
       tipo: tipo.nombre,
-      fechaagregacion: formattedDate,
     };
 
-    createData(valuesId, valuesName);
+    console.log(valuesId);
+    console.log(valuesName);
+
+    updateData(valuesId, valuesName);
   };
 
   return (
@@ -202,6 +183,7 @@ const FormMonitors = ({
                           : false
                       }
                       as={TextField}
+                      disabled
                       name="nroinventario"
                       id="nroinventario"
                       margin="dense"
@@ -242,11 +224,8 @@ const FormMonitors = ({
                     error={touched.lugar && errors.lugar ? true : false}
                     variant="standard"
                     fullWidth
-                    sx={{
-                      m: 1,
-                      minWidth: 120,
-                      gridColumn: 'span 2',
-                    }}
+                    margin="dense"
+                    sx={{ m: 1, minWidth: 120, gridColumn: 'span 2' }}
                   >
                     <InputLabel id="lugar">Lugar</InputLabel>
                     <Field
@@ -256,12 +235,11 @@ const FormMonitors = ({
                       labelId="lugar"
                       label="Lugar"
                     >
-                      {dataSelects.lugares &&
-                        dataSelects.lugares.map((el) => (
-                          <MenuItem value={el.nombre} key={el.id}>
-                            {el.nombre}
-                          </MenuItem>
-                        ))}
+                      {dataSelects.lugares.map((el) => (
+                        <MenuItem value={el.nombre} key={el.id}>
+                          {el.nombre}
+                        </MenuItem>
+                      ))}
                     </Field>
                     <ErrorMessage
                       name="lugar"
@@ -293,12 +271,11 @@ const FormMonitors = ({
                         setValueMaker(e.target.value);
                       }}
                     >
-                      {dataSelects.fabricantes &&
-                        dataSelects.fabricantes.map((el) => (
-                          <MenuItem value={el.nombre} key={el.id}>
-                            {el.nombre}
-                          </MenuItem>
-                        ))}
+                      {dataSelects.fabricantes.map((el) => (
+                        <MenuItem value={el.nombre} key={el.id}>
+                          {el.nombre}
+                        </MenuItem>
+                      ))}
                     </Field>
                     <ErrorMessage
                       name="fabricante"
@@ -322,12 +299,18 @@ const FormMonitors = ({
                       labelId="modelo"
                       label="Modelo"
                     >
-                      {models &&
-                        models.map((el) => (
+                      {models.map((el) => (
+                        <MenuItem value={el.nombre} key={el.id}>
+                          {el.nombre}
+                        </MenuItem>
+                      ))}
+                      {/* {dataSelects.makers2
+                        .find((el) => el.nombre === values.fabricante)
+                        ?.modelos.map((el) => (
                           <MenuItem value={el.nombre} key={el.id}>
                             {el.nombre}
                           </MenuItem>
-                        ))}
+                        ))} */}
                     </Field>
                     <ErrorMessage
                       name="modelo"
@@ -351,12 +334,11 @@ const FormMonitors = ({
                       labelId="tipo"
                       label="tipo"
                     >
-                      {dataSelects.tipos &&
-                        dataSelects.tipos.map((el) => (
-                          <MenuItem value={el.nombre} key={el.id}>
-                            {el.nombre}
-                          </MenuItem>
-                        ))}
+                      {dataSelects.tipos.map((el) => (
+                        <MenuItem value={el.nombre} key={el.id}>
+                          {el.nombre}
+                        </MenuItem>
+                      ))}
                     </Field>
                     <ErrorMessage
                       name="tipo"
@@ -398,12 +380,11 @@ const FormMonitors = ({
                       id="estado"
                       label="estado"
                     >
-                      {dataSelects.estados &&
-                        dataSelects.estados.map((el) => (
-                          <MenuItem value={el.nombre} key={el.id}>
-                            {el.nombre}
-                          </MenuItem>
-                        ))}
+                      {dataSelects.estados.map((el) => (
+                        <MenuItem value={el.nombre} key={el.id}>
+                          {el.nombre}
+                        </MenuItem>
+                      ))}
                     </Field>
                     <ErrorMessage
                       name="estado"
@@ -417,10 +398,10 @@ const FormMonitors = ({
                   <Box display="flex" justifyContent="end" mt="20px" gap="10px">
                     <Button
                       onClick={() => {
-                        setOpen(false);
+                        //setOpen(false);
                         //handleReset();
-                        //console.log(initialValues);
-                        //console.log(initialModel);
+                        console.log(initialValues);
+                        console.log(initialModel);
                       }}
                       color="neutral"
                       variant="outlined"
@@ -441,4 +422,4 @@ const FormMonitors = ({
   );
 };
 
-export default FormMonitors;
+export default FormEditMonitor;

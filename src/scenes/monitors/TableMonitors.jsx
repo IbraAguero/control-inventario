@@ -8,7 +8,7 @@ import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
-const TableMonitors = ({ monitors, setConfirmDelete, setIdToDelete }) => {
+const TableMonitors = ({ monitors, handleDelete, handleEditFormOpen }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -18,16 +18,14 @@ const TableMonitors = ({ monitors, setConfirmDelete, setIdToDelete }) => {
       headerName: 'Nro-Inventario',
       headerAlign: 'center',
       align: 'center',
-      flex: 1,
+      flex: 2,
     },
     {
       field: 'lugar',
       headerName: 'Lugar',
       headerAlign: 'center',
       align: 'center',
-
-      flex: 2,
-      cellClassName: 'lugar-column--cell',
+      flex: 3,
     },
     {
       field: 'fabricante',
@@ -101,10 +99,11 @@ const TableMonitors = ({ monitors, setConfirmDelete, setIdToDelete }) => {
           <Box display="flex" gap="5px">
             <IconButton
               variant="contained"
-              /* onClick={() => {
-                setOpenEditForm(true);
-                setIdToEdit(id);
-              }} */
+              onClick={() => {
+                //setOpenEditForm(true);
+                //setIdToEdit(nroinventario);
+                handleEditFormOpen(nroinventario);
+              }}
             >
               <BorderColorOutlinedIcon />
             </IconButton>
@@ -112,8 +111,7 @@ const TableMonitors = ({ monitors, setConfirmDelete, setIdToDelete }) => {
               color="error"
               variant="contained"
               onClick={() => {
-                setConfirmDelete(true);
-                setIdToDelete(nroinventario);
+                handleDelete(nroinventario);
               }}
             >
               <DeleteOutlineOutlinedIcon />

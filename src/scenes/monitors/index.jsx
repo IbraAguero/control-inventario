@@ -1,25 +1,38 @@
 import { useEffect, useState } from 'react';
 import { Box, Button } from '@mui/material';
+import { useConfirm } from 'material-ui-confirm';
 import Header from '../../components/Header';
-import ModalMui from '../global/ModalMui';
-import axios from 'axios';
-
 import FormMonitor from './FormMonitor';
 import TableMonitors from './TableMonitors';
-import ConfirmDialog from '../global/ConfirmDialog';
+import FormEditMonitor from './FormEditMonitor';
+import axios from 'axios';
+
+const initialValues = {
+  nroinventario: '',
+  nroserie: '',
+  lugar: '',
+  fabricante: '',
+  modelo: '',
+  tipo: '',
+  pulgadas: '',
+  estado: '',
+};
 
 const Monitors = () => {
   const [openAddForm, setOpenAddForm] = useState(false);
+  const [openEditForm, setOpenEditForm] = useState(false);
   const [monitors, setMonitors] = useState([]);
-  const [idToDelete, setIdToDelete] = useState(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [idToEdit, setIdToEdit] = useState(null);
+  const [valuesEdit, setValuesEdit] = useState(initialValues);
+  const [valueModel, setValueModel] = useState('');
 
+  const confirm = useConfirm();
   useEffect(() => {
-    axios
-      .get('http://localhost:8000/monitores')
-      .then((res) => {
-        // Se corrige el formato de la fecha
-        const datosCorregidos = res.data.map((objeto) => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/monitores');
+
+        const datosCorregidos = response.data.map((objeto) => {
           const fechaCompleta = objeto.fechaagregacion;
           const fecha = new Date(fechaCompleta);
           const año = fecha.getFullYear();
@@ -35,32 +48,89 @@ const Monitors = () => {
         });
 
         setMonitors(datosCorregidos);
-      })
-      .catch((err) => console.log(err));
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
   }, []);
 
-  const createData = (data, dataName) => {
-    axios
-      .post('http://localhost:8000/monitores', data)
-      .then(() => {
-        console.log(data);
-        console.log(dataName);
-        setMonitors([...monitors, dataName]);
-      })
-      .catch((err) => console.log(err))
-      .finally(() => {
-        setOpenAddForm(false);
-      });
+  useEffect(() => {
+    const fetchData = async () => {
+      if (idToEdit) {
+        try {
+          const response = await axios.get(
+            'http://localhost:8000/monitores/read/' + idToEdit
+          );
+          const data = response.data[0][0];
+          setValuesEdit({ ...data, modelo: data.modelo });
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+
+    fetchData();
+  }, [idToEdit]);
+
+  const createData = async (data, dataName) => {
+    try {
+      await axios.post('http://localhost:8000/monitores', data);
+      setMonitors([...monitors, dataName]);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setOpenAddForm(false);
+    }
   };
 
-  const deleteData = (id) => {
-    axios
-      .delete('http://localhost:8000/monitores/delete/' + id)
-      .then(() => {
-        let newData = monitors.filter((el) => el.nroinventario !== id);
-        setMonitors(newData);
-      })
-      .catch((err) => console.log(err));
+  const updateData = async (data, dataName) => {
+    try {
+      await axios.put(
+        'http://localhost:8000/monitores/update/' + idToEdit,
+        data
+      );
+      let newData = monitors.map((el) =>
+        el.nroinventario === idToEdit ? dataName : el
+      );
+      setMonitors(newData);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setOpenEditForm(false);
+    }
+  };
+
+  const deleteData = async (id) => {
+    try {
+      await axios.delete(`http://localhost:8000/monitores/delete/${id}`);
+      let newData = monitors.filter((el) => el.nroinventario !== id);
+      setMonitors(newData);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    try {
+      await confirm({
+        description: `El monitor ${id} se eliminará permanentemente.`,
+      });
+      await deleteData(id);
+    } catch (error) {
+      console.log('Deletion cancelled.');
+    }
+  };
+
+  const handleEditFormOpen = (id) => {
+    const data = monitors.find((monitor) => monitor.nroinventario === id);
+    if (data) {
+      setIdToEdit(id);
+      setValuesEdit({ ...data });
+      setValueModel(data.modelo);
+      setOpenEditForm(true);
+    }
   };
 
   return (
@@ -79,23 +149,25 @@ const Monitors = () => {
       </Box>
       <TableMonitors
         monitors={monitors}
-        setConfirmDelete={setConfirmDelete}
-        setIdToDelete={setIdToDelete}
+        setOpenEditForm={setOpenEditForm}
+        setIdToEdit={setIdToEdit}
+        handleEditFormOpen={handleEditFormOpen}
+        handleDelete={handleDelete}
       />
-      <ModalMui
+      <FormMonitor
+        title={'Agregar Monitor'}
         open={openAddForm}
         setOpen={setOpenAddForm}
-        title={'Agregar Monitor'}
-      >
-        <FormMonitor setOpen={setOpenAddForm} createData={createData} />
-      </ModalMui>
-      <ConfirmDialog
-        open={confirmDelete}
-        setOpen={setConfirmDelete}
-        title={'Eliminar monitor'}
-        body={'Seguro desea eliminar el monitor'}
-        handleDelete={deleteData}
-        id={idToDelete}
+        createData={createData}
+        initialValues={initialValues}
+      />
+      <FormEditMonitor
+        title={'Editar Monitor'}
+        open={openEditForm}
+        setOpen={setOpenEditForm}
+        initialValues={valuesEdit}
+        initialModel={valueModel}
+        updateData={updateData}
       />
     </Box>
   );
