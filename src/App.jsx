@@ -16,10 +16,10 @@ import { AuthContext } from './scenes/login/AuthContext';
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
-  const { isAuthenticated } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
+  const isAuthenticated = localStorage.getItem('isAuthenticated');
   useEffect(() => {
     if (!isAuthenticated) {
       navigate('/login');
