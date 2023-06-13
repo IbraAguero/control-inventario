@@ -1,6 +1,6 @@
 import { ColorModeContext, useMode } from './theme';
 import { CssBaseline, ThemeProvider } from '@mui/material';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Topbar from './scenes/global/Topbar';
 import Sidebar from './scenes/global/Sidebar';
 import Home from './scenes/Home/';
@@ -8,12 +8,23 @@ import Computer from './scenes/computers';
 import Monitors from './scenes/monitors';
 import Printers from './scenes/printers';
 import Peripherals from './scenes/peripherals';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { ConfirmProvider } from 'material-ui-confirm';
+import Login from './scenes/login';
+import { AuthContext } from './scenes/login/AuthContext';
 
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
+  const { isAuthenticated } = useContext(AuthContext);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate('/login');
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <ColorModeContext.Provider value={colorMode}>
@@ -50,10 +61,11 @@ function App() {
               },
             }}
           >
-            <Sidebar isSidebar={isSidebar} />
+            {isAuthenticated && <Sidebar isSidebar={isSidebar} />}
             <main className="content">
-              <Topbar setIsSidebar={setIsSidebar} />
+              {isAuthenticated && <Topbar setIsSidebar={setIsSidebar} />}
               <Routes>
+                <Route path="/login" element={<Login />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/computadoras" element={<Computer />} />
                 <Route path="/monitores" element={<Monitors />} />
