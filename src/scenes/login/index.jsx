@@ -1,8 +1,8 @@
-import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 //import logo from './img/logo.png';
-import TextField from '@mui/material/TextField';
+import TextField from "@mui/material/TextField";
 import {
   Box,
   Button,
@@ -14,23 +14,23 @@ import {
   FormHelperText,
   Alert,
   Container,
-} from '@mui/material';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { AuthContext } from './AuthContext';
+} from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import { AuthContext } from "./AuthContext";
 
 function Login() {
   const { setAuthentication } = useContext(AuthContext);
 
   const [values, setValues] = useState({
-    usuario: '',
-    password: '',
+    usuario: "",
+    password: "",
   });
 
   const navigate = useNavigate();
 
   const [errors, setErrors] = useState({});
-  const [loginError, setLoginError] = useState('');
+  const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (event) => {
@@ -40,9 +40,9 @@ function Login() {
     }));
     setErrors((prev) => ({
       ...prev,
-      [event.target.name]: '',
+      [event.target.name]: "",
     }));
-    setLoginError('');
+    setLoginError("");
   };
 
   const handleSubmit = async (event) => {
@@ -50,23 +50,30 @@ function Login() {
 
     if (!values.usuario || !values.password) {
       setErrors({
-        usuario: !values.usuario ? 'Por favor, ingrese un usuario' : '',
-        password: !values.password ? 'Por favor, ingrese una contraseña' : '',
+        usuario: !values.usuario ? "Por favor, ingrese un usuario" : "",
+        password: !values.password ? "Por favor, ingrese una contraseña" : "",
       });
       return;
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/login', values);
+      const response = await axios.post("http://localhost:8000/login", values);
       const data = response.data;
 
-      if (data === 'Success') {
+      if (data === "Success") {
         setAuthentication(true);
-        console.log('holaa');
-        localStorage.setItem('isAuthenticated', 'true');
-        navigate('/');
+        localStorage.setItem("isAuthenticated", "true");
+
+        // Verificar el rol del usuario
+        if (values.usuario === "admin") {
+          localStorage.setItem("userRole", "admin");
+        } else {
+          localStorage.removeItem("userRole");
+        }
+
+        navigate("/");
       } else {
-        setLoginError('Credenciales incorrectas');
+        setLoginError("Credenciales incorrectas");
       }
     } catch (error) {
       console.log(error);
@@ -105,9 +112,9 @@ function Login() {
       <Container
         maxWidth="xs"
         sx={{
-          display: 'grid',
-          placeItems: 'center',
-          height: '100%',
+          display: "grid",
+          placeItems: "center",
+          height: "100%",
         }}
       >
         <Box
@@ -145,7 +152,7 @@ function Login() {
                 <OutlinedInput
                   onChange={handleChange}
                   id="outlined-adornment-password"
-                  type={showPassword ? 'text' : 'password'}
+                  type={showPassword ? "text" : "password"}
                   endAdornment={passwordAdornment}
                   label="Contraseña"
                   name="password"
