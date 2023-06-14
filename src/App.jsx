@@ -12,6 +12,7 @@ import { useContext, useEffect, useState } from 'react';
 import { ConfirmProvider } from 'material-ui-confirm';
 import Login from './scenes/login';
 import { AuthContext } from './scenes/login/AuthContext';
+import { SnackbarProvider } from 'notistack';
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -31,49 +32,51 @@ function App() {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <div className="app">
-          <ConfirmProvider
-            defaultOptions={{
-              title: `Estas seguro?`,
-              confirmationText: 'Aceptar',
-              cancellationText: 'Cancelar',
-              dialogProps: {
-                className: '',
-                PaperProps: {
-                  sx: {
-                    width: '400px',
-                    borderRadius: '8px',
-                    padding: '5px',
+          <SnackbarProvider autoHideDuration={3000} preventDuplicate={true}>
+            <ConfirmProvider
+              defaultOptions={{
+                title: `Estas seguro?`,
+                confirmationText: 'Aceptar',
+                cancellationText: 'Cancelar',
+                dialogProps: {
+                  className: '',
+                  PaperProps: {
+                    sx: {
+                      width: '400px',
+                      borderRadius: '8px',
+                      padding: '5px',
+                    },
                   },
                 },
-              },
-              titleProps: {
-                fontSize: '22px',
-                fontWeight: 'bold',
-                marginBottom: '5px',
-              },
-              confirmationButtonProps: {
-                color: 'secondary',
-                variant: 'outlined',
-              },
-              cancellationButtonProps: {
-                color: 'error',
-                variant: 'outlined',
-              },
-            }}
-          >
-            {isAuthenticated && <Sidebar isSidebar={isSidebar} />}
-            <main className="content">
-              {isAuthenticated && <Topbar setIsSidebar={setIsSidebar} />}
-              <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/" element={<Home />} />
-                <Route path="/computadoras" element={<Computer />} />
-                <Route path="/monitores" element={<Monitors />} />
-                <Route path="/impresoras" element={<Printers />} />
-                <Route path="/perifericos" element={<Peripherals />} />
-              </Routes>
-            </main>
-          </ConfirmProvider>
+                titleProps: {
+                  fontSize: '22px',
+                  fontWeight: 'bold',
+                  marginBottom: '5px',
+                },
+                confirmationButtonProps: {
+                  color: 'secondary',
+                  variant: 'outlined',
+                },
+                cancellationButtonProps: {
+                  color: 'error',
+                  variant: 'outlined',
+                },
+              }}
+            >
+              {isAuthenticated && <Sidebar isSidebar={isSidebar} />}
+              <main className="content">
+                {isAuthenticated && <Topbar setIsSidebar={setIsSidebar} />}
+                <Routes>
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/" element={<Home />} />
+                  <Route path="/computadoras" element={<Computer />} />
+                  <Route path="/monitores" element={<Monitors />} />
+                  <Route path="/impresoras" element={<Printers />} />
+                  <Route path="/perifericos" element={<Peripherals />} />
+                </Routes>
+              </main>
+            </ConfirmProvider>
+          </SnackbarProvider>
         </div>
       </ThemeProvider>
     </ColorModeContext.Provider>
