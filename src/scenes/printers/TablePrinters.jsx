@@ -1,46 +1,60 @@
-import { Box, IconButton, Typography, useTheme } from '@mui/material';
-import { DataGrid, GridToolbar } from '@mui/x-data-grid';
+import { useTheme } from '@emotion/react';
 import { tokens } from '../../theme';
-import DoneOutlinedIcon from '@mui/icons-material/DoneOutlined';
-import BlockOutlinedIcon from '@mui/icons-material/BlockOutlined';
-import BuildOutlinedIcon from '@mui/icons-material/BuildOutlined';
+import { Box, IconButton, Typography } from '@mui/material';
+
 import BorderColorOutlinedIcon from '@mui/icons-material/BorderColorOutlined';
 import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
+import { DataGrid, GridToolbar } from '@mui/x-data-grid';
 
-const TableComputers = ({
-  computers,
-  setIdToEdit,
-  setOpenEditForm,
-  setConfirmDelete,
-  setIdToDelete,
-}) => {
+const TableMonitors = ({ monitors, handleEditFormOpen }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
   const columns = [
-    { field: 'id', headerName: 'ID' },
+    {
+      field: 'nroinventario',
+      headerName: 'Nro-Inventario',
+      headerAlign: 'center',
+      align: 'center',
+      flex: 1,
+    },
     {
       field: 'lugar',
       headerName: 'Lugar',
+      headerAlign: 'center',
+      align: 'center',
+
       flex: 2,
       cellClassName: 'lugar-column--cell',
     },
     {
-      field: 'cpucomputadora',
-      headerName: 'CPU',
-      headerAlign: 'left',
-      align: 'left',
+      field: 'fabricante',
+      headerName: 'Fabricante',
+      headerAlign: 'center',
+      align: 'center',
       flex: 2,
     },
     {
-      field: 'ram',
-      headerName: 'Cantidad de RAM',
+      field: 'modelo',
+      headerName: 'Modelo',
       headerAlign: 'center',
       align: 'center',
     },
     {
-      field: 'discohd',
-      headerName: 'Disco HD',
+      field: 'tipo',
+      headerName: 'Tipo',
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'fechaagregacion',
+      headerName: 'FechaAgregacion',
+      headerAlign: 'center',
+      align: 'center',
+    },
+    {
+      field: 'pulgadas',
+      headerName: 'Pulgadas',
       headerAlign: 'center',
       align: 'center',
     },
@@ -62,9 +76,9 @@ const TableComputers = ({
             }
             borderRadius="5px"
           >
-            {estado === 'Activa' && <DoneOutlinedIcon />}
+            {/* {estado === 'Activa' && <DoneOutlinedIcon />}
             {estado === 'Inactiva' && <BlockOutlinedIcon />}
-            {estado === 'Reparacion' && <BuildOutlinedIcon />}
+            {estado === 'Reparacion' && <BuildOutlinedIcon />} */}
             <Typography color={colors.grey[100]} sx={{ ml: '5px' }}>
               {estado}
             </Typography>
@@ -78,15 +92,16 @@ const TableComputers = ({
       headerAlign: 'center',
       align: 'center',
       flex: 1.2,
-      renderCell: ({ row: { id } }) => {
+      renderCell: ({ row: { nroinventario } }) => {
         return (
           <Box display="flex" gap="5px">
             <IconButton
               variant="contained"
-              onClick={() => {
+              /* onClick={() => {
                 setOpenEditForm(true);
                 setIdToEdit(id);
-              }}
+              }} */
+              onClick={() => handleEditFormOpen(nroinventario)}
             >
               <BorderColorOutlinedIcon />
             </IconButton>
@@ -94,10 +109,10 @@ const TableComputers = ({
               color="error"
               variant="contained"
               /* onClick={() => deleteData(id)} */
-              onClick={() => {
+              /* onClick={() => {
                 setConfirmDelete(true);
                 setIdToDelete(id);
-              }}
+              }} */
             >
               <DeleteOutlineOutlinedIcon />
             </IconButton>
@@ -141,7 +156,9 @@ const TableComputers = ({
       }}
     >
       <DataGrid
-        rows={computers}
+        rows={monitors}
+        density="compact"
+        getRowId={(row) => row.nroinventario}
         columns={columns}
         components={{ Toolbar: GridToolbar }}
         checkboxSelection
@@ -151,4 +168,4 @@ const TableComputers = ({
   );
 };
 
-export default TableComputers;
+export default TableMonitors;

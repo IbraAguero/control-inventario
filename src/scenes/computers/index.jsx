@@ -78,8 +78,8 @@ const Computers = () => {
       <TableComputers
         computers={computers}
         deleteData={deleteData}
-        setIdToEdit={setIdToEdit}
         setIdToDelete={setIdToDelete}
+        setIdToEdit={setIdToEdit}
         setOpenEditForm={setOpenEditForm}
         setConfirmDelete={setConfirmDelete}
       />
@@ -99,6 +99,7 @@ const Computers = () => {
           idToEdit={idToEdit}
           updateData={updateData}
           setIdToEdit={setIdToEdit}
+          setOpen={setOpenEditForm}
         />
       </ModalMui>
       <ConfirmDialog
