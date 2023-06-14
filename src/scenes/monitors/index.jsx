@@ -5,6 +5,8 @@ import Header from '../../components/Header';
 import FormMonitor from './FormMonitor';
 import TableMonitors from './TableMonitors';
 import FormEditMonitor from './FormEditMonitor';
+import { useSnackbar } from 'notistack';
+
 import axios from 'axios';
 
 const initialValues = {
@@ -25,6 +27,7 @@ const Monitors = () => {
   const [idToEdit, setIdToEdit] = useState(null);
   const [valuesEdit, setValuesEdit] = useState(initialValues);
   const [valueModel, setValueModel] = useState('');
+  const { enqueueSnackbar } = useSnackbar();
 
   const confirm = useConfirm();
   useEffect(() => {
@@ -50,6 +53,9 @@ const Monitors = () => {
         setMonitors(datosCorregidos);
       } catch (error) {
         console.log(error);
+        enqueueSnackbar('El error al conectar con la base de datos', {
+          variant: 'error',
+        });
       }
     };
 
@@ -67,6 +73,9 @@ const Monitors = () => {
           setValuesEdit({ ...data, modelo: data.modelo });
         } catch (error) {
           console.log(error);
+          enqueueSnackbar('El error al conectar con la base de datos', {
+            variant: 'error',
+          });
         }
       }
     };
@@ -82,6 +91,9 @@ const Monitors = () => {
       console.log(error);
     } finally {
       setOpenAddForm(false);
+      enqueueSnackbar('El monitor se agrego de manera correcta', {
+        variant: 'success',
+      });
     }
   };
 
@@ -99,6 +111,9 @@ const Monitors = () => {
       console.log(error);
     } finally {
       setOpenEditForm(false);
+      enqueueSnackbar('El monitor se edito de manera correcta', {
+        variant: 'success',
+      });
     }
   };
 
