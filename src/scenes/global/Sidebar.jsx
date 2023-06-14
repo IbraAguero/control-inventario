@@ -75,7 +75,7 @@ const Sidebar = () => {
                   fontWeight="bold"
                   color={colors.grey[100]}
                 >
-                  Invetario
+                  Inventario
                 </Typography>
                 <IconButton onClick={() => setIsCollapsed(!isCollapsed)}>
                   <MenuOutlinedIcon />
