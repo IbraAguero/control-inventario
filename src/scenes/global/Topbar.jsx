@@ -27,6 +27,7 @@ import { MenuItem as ProSidebarMenuItem } from 'react-pro-sidebar';
 import { AuthContext } from '../login/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import FormUser from './FormUser';
 
 const Topbar = () => {
   const theme = useTheme();
@@ -169,8 +170,8 @@ const Topbar = () => {
           </Menu>
         </div>
       </Box>
-
-      <Dialog
+        <FormUser openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
+{/*       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
         fullScreen={isSmallScreen}
@@ -235,7 +236,7 @@ const Topbar = () => {
             </DialogActions>
           </form>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
     </Box>
   );
 };
