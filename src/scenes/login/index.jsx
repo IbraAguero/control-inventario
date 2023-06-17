@@ -71,6 +71,8 @@ function Login() {
           localStorage.removeItem("userRole");
         }
 
+        localStorage.setItem("username", values.usuario)
+
         navigate("/");
       } else {
         setLoginError("Credenciales incorrectas");
