@@ -25,10 +25,22 @@ const AutoCompleteList = ({ url, error }) => {
           options={options}
           //onChange={handleInputChange}
           renderInput={(params) => (
-            <TextField {...params} label="Seleccionar" />
+            <TextField
+              {...params}
+              label="Seleccionar"
+              sx={{ border: 'none' }}
+            />
           )}
         />
-        <IconButton>
+        <IconButton
+          sx={{
+            height: '100%',
+            backgroundColor: '#000',
+            borderBottomLeftRadius: 2,
+            borderTopLeftRadius: 2,
+            paddingRight: 1.5,
+          }}
+        >
           <AddIcon />
         </IconButton>
       </Box>
