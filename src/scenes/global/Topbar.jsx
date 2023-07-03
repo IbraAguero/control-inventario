@@ -2,7 +2,7 @@ import {
   Box,
   IconButton,
   Menu,
-  MenuItem as MuiMenuItem,
+  MenuItem,
   useTheme,
   Dialog,
   DialogTitle,
@@ -11,8 +11,6 @@ import {
   Button,
   TextField,
   useMediaQuery,
-  FormHelperText,
-  FormControl,
   Alert,
 } from '@mui/material';
 import { useContext, useState } from 'react';
@@ -23,10 +21,12 @@ import DarkModeOutlinedIcon from '@mui/icons-material/DarkModeOutlined';
 /* import SettingsOutlinedIcon from '@mui/icons-material/SettingsOutlined'; */
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import SearchIcon from '@mui/icons-material/Search';
-import { MenuItem as ProSidebarMenuItem } from 'react-pro-sidebar';
 import { AuthContext } from '../login/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import { StyledMenu } from '../../components/StyledMenu';
+import Logout from '@mui/icons-material/Logout';
+import PersonAdd from '@mui/icons-material/PersonAdd';
 
 const Topbar = () => {
   const theme = useTheme();
@@ -154,19 +154,22 @@ const Topbar = () => {
           >
             <PersonOutlinedIcon />
           </IconButton>
-          <Menu
+          <StyledMenu
             id="basic-menu"
             anchorEl={anchorEl}
             open={open}
             onClose={handleClose}
           >
-            <MuiMenuItem onClick={handleLogout}>Cerrar sesión</MuiMenuItem>
+            <MenuItem onClick={handleLogout}>
+              <Logout /> Cerrar sesión
+            </MenuItem>
             {userRole === 'admin' && (
-              <MuiMenuItem onClick={handleCreateUser}>
+              <MenuItem onClick={handleCreateUser}>
+                <PersonAdd />
                 Crear usuario
-              </MuiMenuItem>
+              </MenuItem>
             )}
-          </Menu>
+          </StyledMenu>
         </div>
       </Box>
 
