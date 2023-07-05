@@ -1,17 +1,8 @@
 import {
   Box,
   IconButton,
-  Menu,
-  MenuItem,
+  MenuItem as MuiMenuItem,
   useTheme,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  useMediaQuery,
-  Alert,
 } from '@mui/material';
 import { useContext, useState } from 'react';
 import { ColorModeContext, tokens } from '../../theme';
@@ -24,18 +15,21 @@ import SearchIcon from '@mui/icons-material/Search';
 import { AuthContext } from '../login/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import FormUser from './FormUser';
+import FormUpdatePassword from './FormUpdatePassword';
 import { StyledMenu } from '../../components/StyledMenu';
-import Logout from '@mui/icons-material/Logout';
-import PersonAdd from '@mui/icons-material/PersonAdd';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
+import PasswordIcon from '@mui/icons-material/Password';
 
 const Topbar = () => {
+  const [openUpdatePasswordDialog, setOpenUpdatePasswordDialog] =
+    useState(false);
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
 
   const userRole = localStorage.getItem('userRole');
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [anchorEl, setAnchorEl] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
@@ -57,59 +51,8 @@ const Topbar = () => {
     navigate('/');
   };
 
-  const handleUsernameChange = (e) => {
-    setUsername(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    // Enviar la solicitud POST para crear un nuevo usuario
-    fetch('http://localhost:8000/api/users', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: username,
-        password: password,
-      }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data);
-        if (data.message == 'Usuario creado exitosamente') {
-          setUsername('');
-          setPassword('');
-          setErrorMessage('');
-          //alert('Usuario creado exitosamente');
-          handleCloseDialog();
-          enqueueSnackbar(data.message, { variant: 'success' });
-        } else {
-          setErrorMessage(data.message);
-          setTimeout(() => {
-            setErrorMessage(null);
-          }, 3000);
-        }
-      })
-      .catch((error) => {
-        console.error('Error al crear el usuario:', error);
-      });
-
-    setUsername('');
-    setPassword('');
-    setErrorMessage('');
-    //handleCloseDialog();
-  };
-
   const handleCreateUser = () => {
     setOpenDialog(true); // Abrir el diálogo de alta de usuarios
-    //console.log(username);
-    //console.log('handleCreateUser');
   };
 
   const handleCloseDialog = () => {
@@ -117,7 +60,10 @@ const Topbar = () => {
     setErrorMessage('');
   };
 
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+  const handleUpdatePassword = () => {
+    setOpenUpdatePasswordDialog(true);
+    handleClose(); // Cerrar el menú desplegable
+  };
 
   return (
     <Box display="flex" justifyContent="space-between" p={2}>
@@ -160,85 +106,28 @@ const Topbar = () => {
             open={open}
             onClose={handleClose}
           >
-            <MenuItem onClick={handleLogout}>
-              <Logout /> Cerrar sesión
-            </MenuItem>
+            <MuiMenuItem onClick={handleUpdatePassword}>
+              <PasswordIcon />
+              Cambiar contraseña
+            </MuiMenuItem>
+            <MuiMenuItem onClick={handleLogout}>
+              <LogoutIcon />
+              Cerrar sesión
+            </MuiMenuItem>
             {userRole === 'admin' && (
-              <MenuItem onClick={handleCreateUser}>
-                <PersonAdd />
+              <MuiMenuItem onClick={handleCreateUser}>
+                <PersonAddAltIcon />
                 Crear usuario
-              </MenuItem>
+              </MuiMenuItem>
             )}
           </StyledMenu>
         </div>
       </Box>
-
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        fullScreen={isSmallScreen}
-        fullWidth
-      >
-        <DialogTitle
-          sx={{
-            background: '#444',
-            fontSize: '20px',
-            fontWeight: '600',
-          }}
-        >
-          Alta de usuario
-        </DialogTitle>
-        <DialogContent>
-          <form onSubmit={handleSubmit}>
-            <Box
-              display="grid"
-              gap="30px"
-              marginTop={5}
-              gridTemplateColumns="repeat(4, minmax(0, 1fr))"
-            >
-              <TextField
-                label="Nombre de usuario"
-                value={username}
-                onChange={handleUsernameChange}
-                fullWidth
-                sx={{ gridColumn: 'span 2' }}
-              />
-              <TextField
-                label="Contraseña"
-                type="password"
-                value={password}
-                onChange={handlePasswordChange}
-                fullWidth
-                sx={{ gridColumn: 'span 2' }}
-              />
-              {errorMessage && (
-                <Alert severity="error" sx={{ gridColumn: 'span 4' }} fullWidth>
-                  {errorMessage}
-                </Alert>
-              )}
-            </Box>
-            <DialogActions>
-              <Box
-                display="flex"
-                justifyContent="end"
-                gap="10px"
-                paddingTop={4}
-              >
-                <Button
-                  color="neutral"
-                  variant="outlined"
-                  onClick={handleCloseDialog}
-                >
-                  Cancelar
-                </Button>
-                <Button type="submit" color="secondary" variant="contained">
-                  Crear
-                </Button>
-              </Box>
-            </DialogActions>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <FormUser openDialog={openDialog} handleCloseDialog={handleCloseDialog} />
+      <FormUpdatePassword
+        openDialog={openUpdatePasswordDialog}
+        handleCloseDialog={setOpenUpdatePasswordDialog}
+      />
     </Box>
   );
 };
