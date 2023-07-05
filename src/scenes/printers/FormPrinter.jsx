@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ErrorMessage, Field, Form, Formik } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
@@ -11,19 +11,10 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   useMediaQuery,
 } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
-import EditIcon from '@mui/icons-material/Edit';
-import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
-import DeleteIcon from '@mui/icons-material/Delete';
-import { StyledMenu } from '../../components/StyledMenu';
-import CustomSelect from './CustomSelect';
+import CustomSelect from '../../components/CustomSelect';
 
 const validationSchema = Yup.object().shape({
   nroserie: Yup.string().required('Campo requerido'),
@@ -62,16 +53,6 @@ const FormPrinter = ({ title, open, setOpen }) => {
   const [models, setModels] = useState([]);
   const [valueMaker, setValueMaker] = useState('');
 
-  //menu
-  const [anchorEl, setAnchorEl] = useState(null);
-  const openMenu = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-
   const isNonMobile = useMediaQuery('(min-width:600px)');
 
   const findByName = (name, element) => {
@@ -92,14 +73,19 @@ const FormPrinter = ({ title, open, setOpen }) => {
         </DialogTitle>
         <DialogContent>
           <Formik
-            initialValues={{ lugar: '' }}
+            initialValues={{
+              lugar: '',
+              fabricante: '',
+              nroserie: '',
+              nroinventario: '',
+            }}
             validationSchema={validationSchema}
             onSubmit={(valores, { resetForm }) => {
               console.log(valores);
               resetForm();
             }}
           >
-            {({ errors, touched, values, setFieldValue }) => (
+            {({ errors, touched, setFieldValue }) => (
               <Form>
                 <Box
                   display="grid"
@@ -159,74 +145,35 @@ const FormPrinter = ({ title, open, setOpen }) => {
                       )}
                     />
                   </FormControl>
-                  <FormControl
-                    error={touched.lugar && errors.lugar ? true : false}
-                    variant="standard"
-                    fullWidth
-                    sx={{
-                      m: 1,
-                      minWidth: 120,
-                      gridColumn: 'span 2',
+                  <CustomSelect
+                    name="lugar"
+                    url={'http://localhost:8000/lugares'}
+                    touched={touched.lugar}
+                    errors={errors.lugar}
+                    handleChange={(e) => {
+                      //setModel(data);
+                      setFieldValue('lugar', e.target.value);
                     }}
-                  >
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <InputLabel id="lugar">Lugar</InputLabel>
-                      <Field
-                        as={Select}
-                        name="lugar"
-                        id="lugar"
-                        labelId="lugar"
-                        label="Lugar"
-                        fullWidth
-                      >
-                        {dataSelects.lugares &&
-                          dataSelects.lugares.map((el) => (
-                            <MenuItem value={el.nombre} key={el.id}>
-                              {el.nombre}
-                            </MenuItem>
-                          ))}
-                      </Field>
-                      <IconButton
-                        id="basic-button"
-                        aria-controls={openMenu ? 'basic-menu' : undefined}
-                        aria-haspopup="true"
-                        aria-expanded={openMenu ? 'true' : undefined}
-                        onClick={handleClick}
-                        sx={{ marginTop: 2 }}
-                      >
-                        <AddIcon />
-                      </IconButton>
-                      <StyledMenu
-                        id="basic-menu"
-                        anchorEl={anchorEl}
-                        open={openMenu}
-                        onClose={handleClose}
-                        MenuListProps={{
-                          'aria-labelledby': 'basic-button',
-                        }}
-                      >
-                        <MenuItem onClick={handleClose} disableRipple>
-                          <LibraryAddIcon />
-                          Agregar
-                        </MenuItem>
-                        <MenuItem onClick={handleClose} disableRipple>
-                          <EditIcon />
-                          Editar
-                        </MenuItem>
-                        <MenuItem onClick={handleClose} disableRipple>
-                          <DeleteIcon />
-                          Eliminar
-                        </MenuItem>
-                      </StyledMenu>
-                    </Box>
-                    <ErrorMessage
-                      name="lugar"
-                      component={() => (
-                        <FormHelperText>{errors.lugar}</FormHelperText>
-                      )}
-                    />
-                  </FormControl>
-                  <CustomSelect errors={errors} touched={touched} />
+                  />
+                  <CustomSelect
+                    name="fabricante"
+                    url={'http://localhost:8000/monitores/fabricantes'}
+                    touched={touched.fabricante}
+                    errors={errors.fabricante}
+                    handleChange={(e) => {
+                      //setModel(data);
+                      setFieldValue('fabricante', e.target.value);
+                    }}
+                  />
+                  {/* <SelectList
+                    name="fabricante"
+                    url={'http://localhost:8000/monitores/fabricantes'}
+                    errors={errors.fabricante}
+                    handleChange={(e, data) => {
+                      //setModel(data);
+                      setFieldValue('fabricante', e.target.value);
+                    }}
+                  /> */}
                 </Box>
                 <DialogActions>
                   <Box display="flex" justifyContent="end" mt="20px" gap="10px">
