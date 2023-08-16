@@ -1,4 +1,4 @@
-import { Box, Button, Dialog } from '@mui/material';
+import { Box, Button } from '@mui/material';
 import Header from '../../components/Header';
 import { useState } from 'react';
 import FormPrinter from './FormPrinter';

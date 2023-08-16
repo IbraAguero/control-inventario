@@ -274,7 +274,6 @@ const FormMonitors = ({
                     error={
                       touched.fabricante && errors.fabricante ? true : false
                     }
-                    variant="standard"
                     fullWidth
                     margin="dense"
                     sx={{ m: 1, minWidth: 120, gridColumn: 'span 2' }}

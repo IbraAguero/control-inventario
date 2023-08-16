@@ -110,9 +110,6 @@ const TableComputers = ({
 
   return (
     <Box
-      m="20px 0 0 0"
-      height="75vh"
-      boxSizing="inherit"
       sx={{
         '& .MuiDataGrid-root': {
           border: 'none',

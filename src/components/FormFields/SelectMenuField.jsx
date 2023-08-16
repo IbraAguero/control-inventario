@@ -12,11 +12,11 @@ import {
 import { useFetch } from '../../scenes/global/hooks/useFetch';
 import { useEffect, useState } from 'react';
 import MenuForm from '../MenuForm';
-import axios from 'axios';
 import { useConfirm } from 'material-ui-confirm';
+import axios from 'axios';
 
 function SelectMenuField(props) {
-  const { label, url, ...rest } = props;
+  const { label, url, name, ...rest } = props;
   const { data: initialData } = useFetch(url);
   const [menuOptions, setMenuOptions] = useState([]);
   const [selectedOption, setSelectedOption] = useState('');
@@ -88,9 +88,12 @@ function SelectMenuField(props) {
 
   return (
     <FormControl {...rest} error={isError}>
-      <InputLabel>{label}</InputLabel>
+      <InputLabel id={name}>{label}</InputLabel>
       <Box sx={{ display: 'flex', alignItems: 'center' }}>
         <Select
+          label={label}
+          labelId={name}
+          id={name}
           {...field}
           value={
             selectedValue &&

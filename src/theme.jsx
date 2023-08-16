@@ -1,5 +1,6 @@
 import { createContext, useState, useMemo } from 'react';
 import { createTheme } from '@mui/material/styles';
+import { esES } from '@mui/x-data-grid';
 
 // color design tokens export
 export const tokens = (mode) => ({
@@ -209,6 +210,6 @@ export const useMode = () => {
     []
   );
 
-  const theme = useMemo(() => createTheme(themeSettings(mode)), [mode]);
+  const theme = useMemo(() => createTheme(themeSettings(mode), esES), [mode]);
   return [theme, colorMode];
 };
